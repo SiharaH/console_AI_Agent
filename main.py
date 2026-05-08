@@ -43,3 +43,9 @@ agent_Executor = AgentExecutor(agent = agentC, tools = [], verbose = True)
 
 raw_response = agent_Executor.invoke({"query": "What is the current state of research on AI agents?"})
 print(raw_response)
+
+try:
+    structured_response = parser.parse(raw_response.get("output")[0]["text"])
+    print(structured_response)
+except Exception as e:
+    print("Error parsing response: ", e, "\nRaw response: ", raw_response)

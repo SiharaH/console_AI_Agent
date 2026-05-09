@@ -4,6 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
+from tools import search_tool
 
 load_dotenv()
 
@@ -33,19 +34,20 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 ).partial(format_instructions=parser.get_format_instructions())
 
+tools = [search_tool]
 agentC = create_tool_calling_agent(
     llm=llm, 
     prompt=prompt, 
-    tools = []
+    tools = tools
     )
 
-agent_Executor = AgentExecutor(agent = agentC, tools = [], verbose = True)
+agent_Executor = AgentExecutor(agent = agentC, tools = tools, verbose = True)
+Query = input("What can i help you research? ")
 
-raw_response = agent_Executor.invoke({"query": "What is the current state of research on AI agents?"})
-print(raw_response)
+raw_response = agent_Executor.invoke({"query": Query})
 
 try:
-    structured_response = parser.parse(raw_response.get("output")[0]["text"])
+    structured_response = parser.parse(raw_response.get("output"))
     print(structured_response)
 except Exception as e:
     print("Error parsing response: ", e, "\nRaw response: ", raw_response)
